@@ -1,0 +1,29 @@
+
+.container {
+    padding: 20px;
+  }
+  
+  .attendance-form {
+    margin-bottom: 20px;
+  }
+  
+  .input {
+    margin-bottom: 10px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .button {
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .button:hover {
+    background-color: #218838;
+  }
+  
