@@ -1,23 +1,31 @@
+html, body {
+  height: 100%; /* Ensure full height for both html and body */
+  margin: 0; /* Remove default margins */
+}
+
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  background-color: #f0f0f0; /* Light gray background */
+  height: 100vh; /* Full viewport height */
+ /* background: url('public/images/background.png') no-repeat center center fixed; /* Add your background image */
+  background-size: cover; /* Cover the whole screen */
   font-family: Arial, sans-serif;
+  color: #fff; /* Optional: Change text color to white for better contrast */
 }
 
 h1 {
   font-size: 2.5rem;
   margin-bottom: 2rem;
   text-align: center;
-  color: #333; /* Dark gray text */
+  color: #fff; /* Light text color for better visibility on dark background */
 }
 
 .options {
   display: flex;
   justify-content: center;
+  margin-top: 2rem; /* Optional: Add margin to move options down */
 }
 
 .options a {

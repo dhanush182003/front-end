@@ -1,61 +1,101 @@
 // src/components/StudentDashboard.js
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import { getSubjects, getAttendance, getMarks } from '../services/api';
 import '../css/studentdashboard.css';
+
 const StudentDashboard = () => {
-  const [attendance, setAttendance] = useState([]);
-  const [marks, setMarks] = useState([]);
-  const [message, setMessage] = useState('');
+  const [view, setView] = useState('');
+  const [subjects, setSubjects] = useState([]);
+  const [selectedSubject, setSelectedSubject] = useState('');
+  const [attendance, setAttendance] = useState(null);
+  const [marks, setMarks] = useState(null);
 
   useEffect(() => {
-    const fetchAttendance = async () => {
-      try {
-        const token = localStorage.getItem('studentToken');
-        const response = await axios.get('/api/student/attendance', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setAttendance(response.data);
-      } catch (error) {
-        setMessage('Error fetching attendance');
-      }
-    };
+    if (view === 'attendance' || view === 'marks') {
+      const fetchSubjects = async () => {
+        try {
+          const studentId = localStorage.getItem('studentId');
+          const response = await getSubjects(studentId);
+          setSubjects(response);
+        } catch (error) {
+          console.error('Error fetching subjects', error);
+        }
+      };
+      fetchSubjects();
+    }
+  }, [view]);
 
-    const fetchMarks = async () => {
-      try {
-        const token = localStorage.getItem('studentToken');
-        const response = await axios.get('/api/student/marks', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setMarks(response.data);
-      } catch (error) {
-        setMessage('Error fetching marks');
-      }
-    };
+  const handleSubjectChange = async (event) => {
+    const subjectCode = event.target.value;
+    setSelectedSubject(subjectCode);
 
-    fetchAttendance();
-    fetchMarks();
-  }, []);
+    try {
+      const studentId = localStorage.getItem('studentId');
+      if (view === 'attendance') {
+        const response = await getAttendance(studentId, subjectCode);
+        setAttendance(response);
+      } else if (view === 'marks') {
+        const response = await getMarks(studentId, subjectCode);
+        setMarks(response);
+      }
+    } catch (error) {
+      console.error(`Error fetching ${view}`, error);
+    }
+  };
 
   return (
     <div className="container">
       <h2>Student Dashboard</h2>
-      {message && <p>{message}</p>}
-      <div className="section">
-        <h3>Attendance</h3>
-        <ul>
-          {attendance.map((att, index) => (
-            <li key={index}>{att.date}: {att.status}</li>
-          ))}
-        </ul>
-      </div>
-      <div className="section">
-        <h3>Marks</h3>
-        <ul>
-          {marks.map((mark, index) => (
-            <li key={index}>{mark.subjectName}: {mark.marks}</li>
-          ))}
-        </ul>
-      </div>
+      {view === '' && (
+        <div className="options">
+          <div className="option" onClick={() => setView('attendance')}>View Attendance</div>
+          <div className="option" onClick={() => setView('marks')}>View Marks</div>
+        </div>
+      )}
+      {view === 'attendance' && (
+        <div className="attendance-container">
+          <h3>View Attendance</h3>
+          <div className="form-group">
+            <label htmlFor="subject-select">Select Subject:</label>
+            <select id="subject-select" value={selectedSubject} onChange={handleSubjectChange}>
+              <option value="">Select a subject</option>
+              {subjects.map(subject => (
+                <option key={subject.subjectCode} value={subject.subjectCode}>
+                  {subject.subjectName}
+                </option>
+              ))}
+            </select>
+          </div>
+          {attendance !== null && (
+            <div className="attendance">
+              <h3>Attendance for {selectedSubject}</h3>
+              <p>{attendance.percentage}%</p>
+            </div>
+          )}
+        </div>
+      )}
+      {view === 'marks' && (
+        <div className="marks-container">
+          <h3>View Marks</h3>
+          <div className="form-group">
+            <label htmlFor="subject-select">Select Subject:</label>
+            <select id="subject-select" value={selectedSubject} onChange={handleSubjectChange}>
+              <option value="">Select a subject</option>
+              {subjects.map(subject => (
+                <option key={subject.subjectCode} value={subject.subjectCode}>
+                  {subject.subjectName}
+                </option>
+              ))}
+            </select>
+          </div>
+          {marks !== null && (
+            <div className="marks">
+              <h3>Marks for {selectedSubject}</h3>
+              <p>{marks.score}</p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
